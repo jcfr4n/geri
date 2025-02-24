@@ -63,10 +63,16 @@ else
     echo -e "${BOLD}Thank you! We hope you build something incredible. Dive in with:${NC} cd ${PROJECT_NAME} && ./vendor/bin/sail up"
 fi
 
+# rm docker-compose.yml
 
-rm docker-compose.yml
+mv ../.vscode .
+mv -rf ../docker .
+mv ../.env_docker .
+mv ../.gitignore .
+mv ../docker-compose.yml .
+mv ../Dockerfile .
 
-// 
+
 # Reemplazar variables en el archivo .env con las del archivo .env_docker
 if [ -f .env_docker ]; then
     while IFS= read -r line; do
