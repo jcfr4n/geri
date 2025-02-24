@@ -50,3 +50,7 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 
 # Instalar npm
 RUN apk add npm 
+RUN apk add vim
+
+RUN composer create-project --prefer-dist laravel/laravel laravel
+
