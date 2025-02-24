@@ -80,5 +80,7 @@ else
     exit 1
 fi
 
+docker compose up --build
+
 
 
