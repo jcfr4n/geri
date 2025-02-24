@@ -66,4 +66,19 @@ fi
 
 rm docker-compose.yml
 
+// 
+# Reemplazar variables en el archivo .env con las del archivo .env_docker
+if [ -f .env_docker ]; then
+    while IFS= read -r line; do
+        if [[ "$line" =~ ^[^#]*= ]]; then
+            varname=$(echo "$line" | cut -d= -f1)
+            sed -i "s/^${varname}=.*/${line}/" .env
+        fi
+    done < .env_docker
+else
+    echo "El archivo .env_docker no existe."
+    exit 1
+fi
+
+
 
