@@ -12,6 +12,7 @@
 PROJECT_NAME=${PWD##*/}
 
 echo "Work directory: ${PROJECT_NAME}"
+echo "step 1"
 
 sleep 5
 
@@ -24,6 +25,8 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "Creating Laravel project.  Docker is installed and running."
+echo "step 2"
+git config --global --add safe.directory /opt
 sleep 5
 
 docker run --rm \
