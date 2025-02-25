@@ -9,13 +9,11 @@
 #     exit 1
 # fi
 
-// Tomar el nombre del proyecto del nombre del directorio
-
 PROJECT_NAME=${PWD##*/}
 
-echo "Ejecutando en el directorio: ${PROJECT_NAME}"
+echo "Work directory: ${PROJECT_NAME}"
 
-sleep 2
+sleep 5
 
 docker context use default
 
@@ -25,16 +23,16 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+echo "Creating Laravel project.  Docker is installed and running."
+sleep 5
+
 docker run --rm \
     --pull=always \
     -v "$(pwd)":/opt \
     -w /opt \
     laravelsail/php84-composer:latest \
-    bash -c "laravel new ${PROJECT_NAME} --no-interaction"
-    # bash -c "laravel new ${PROJECT_NAME} --no-interaction && cd ${PROJECT_NAME} && php ./artisan sail:install --with=none"
+    bash -c "laravel new ${PROJECT_NAME} --no-interaction && cd ${PROJECT_NAME} && php ./artisan sail:install --with=none"
 #     bash -c "laravel new ${PROJECT_NAME} --no-interaction && cd ${PROJECT_NAME} && php ./artisan sail:install --with=mysql,redis,meilisearch,mailpit,selenium"
-
-cd ${PROJECT_NAME}
 
 if [ "mysql redis meilisearch mailpit selenium" == "none" ]; then
     ./vendor/bin/sail build
@@ -42,6 +40,9 @@ else
     ./vendor/bin/sail pull mysql redis meilisearch mailpit selenium
     ./vendor/bin/sail build
 fi
+
+echo "Laravel project created."
+sleep 5
 
 CYAN='\033[0;36m'
 LIGHT_CYAN='\033[1;36m'
@@ -58,6 +59,10 @@ else
     exit 1
 fi
 
+echo -e "${BOLD}Setting permissions...${NC}"
+echo ""
+sleep 5
+
 if $SUDO -n true 2>/dev/null; then
     $SUDO chown -R "$USER":"$USER" .
     echo -e "${BOLD}Get started with:${NC} cd ${PROJECT_NAME} && sleep 2"
@@ -71,7 +76,10 @@ else
     # echo -e "${BOLD}Thank you! We hope you build something incredible. Dive in with:${NC} cd ${PROJECT_NAME} && ./vendor/bin/sail up"
 fi
 
-# rm docker-compose.yml
+echo Copying files...
+sleep 5
+
+rm docker-compose.yml
 
 mv ../.vscode .
 mv ../docker .
@@ -80,20 +88,13 @@ mv ../.gitignore .
 mv ../docker-compose.yml .
 mv ../Dockerfile .
 
+echo "Files copied."
+sleep 5
 
-# Reemplazar variables en el archivo .env con las del archivo .env_docker
-if [ -f .env_docker ]; then
-    while IFS= read -r line; do
-        if [[ "$line" =~ ^[^#]*= ]]; then
-            varname=$(echo "$line" | cut -d= -f1)
-            sed -i "s/^${varname}=.*/${line}/" .env
-        fi
-    done < .env_docker
-else
-    echo "El archivo .env_docker no existe."
-    exit 1
-fi
+# put all variables that are in .env_docker inside .env
+cat .env_docker >> .env
 
+# ...existing code...
 docker compose up --build
 
 
