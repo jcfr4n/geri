@@ -1,0 +1,79 @@
+services:
+ 
+    php:
+        container_name: my_php
+        build: 
+            context: ./
+            dockerfile: Dockerfile
+        env_file:
+            - ".env"
+        volumes:
+            - ../www:/var/www/html
+            - ./php/php.ini:/usr/local/etc/php/php.ini
+            - ./php/www.conf:/usr/local/etc/php-fpm.d/www.conf
+        ports:
+            - 3000:3000
+        environment:
+            MYSQL_USER: ${MYSQL_USER}
+            MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+            XDEBUG_CONFIG: 
+                client_host=host.docker.internal 
+                client_port=9003
+            user: "${USER_UID:-1000}:${USER_GID:-1000}"
+            networks:
+                - my_network
+    nginx:
+        image: nginx:1.13.8
+        container_name: my_nginx
+        env_file:
+            - ".env"
+        ports:
+            - 8000:80
+        volumes:
+            - ../www:/var/www/html
+            - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+        depends_on:
+            - php
+        networks:
+            - my_network 
+    mysql:
+        image: mysql
+        container_name: my_mysql
+        volumes:
+            - ./data/db:/var/lib/mysql
+        ports:
+            - ${DB_PORT:-3306}:3306
+        depends_on:
+            - php
+        environment:
+            MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+            MYSQL_DATABASE: ${MYSQL_DATABASE}
+            MYSQL_USER: ${MYSQL_USER}
+            MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+            UPLOAD_MAX_FILESIZE: 100M
+            POST_MAX_SIZE: 100M
+            UPLOAD_LIMIT: 100M
+        networks:
+            - my_network
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        container_name: my_phpmyadmin
+        environment:
+            PMA_HOST: my_mysql
+            PMA_PORT: 3306
+            MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+        ports:
+            - 8080:80
+        depends_on:
+            - mysql
+        networks:
+            - my_network
+    mailhog:
+        image: mailhog/mailhog
+        container_name: my_mailhog
+        ports:
+            - 1025:1025
+            - 8025:8025
+networks:
+    my_network:
+        driver: bridge
