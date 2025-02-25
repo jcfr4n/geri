@@ -1,16 +1,21 @@
 #!/bin/bash
 
-# Preguntar al usuario el nombre del proyecto
-read -p "Ingrese el nombre del proyecto: " PROJECT_NAME
+# # Preguntar al usuario el nombre del proyecto
+# read -p "Ingrese el nombre del proyecto: " PROJECT_NAME
 
-# Verificar que el usuario ingresó un nombre
-if [ -z "${PROJECT_NAME}" ]; then
-    echo "Error: No se ingresó un nombre de proyecto."
-    exit 1
-fi
+# # Verificar que el usuario ingresó un nombre
+# if [ -z "${PROJECT_NAME}" ]; then
+#     echo "Error: No se ingresó un nombre de proyecto."
+#     exit 1
+# fi
+
+// Tomar el nombre del proyecto del nombre del directorio
+
+PROJECT_NAME=${PWD##*/}
 
 echo "Ejecutando en el directorio: ${PROJECT_NAME}"
 
+sleep 2
 
 docker context use default
 
@@ -25,7 +30,8 @@ docker run --rm \
     -v "$(pwd)":/opt \
     -w /opt \
     laravelsail/php84-composer:latest \
-    bash -c "laravel new ${PROJECT_NAME} --no-interaction && cd ${PROJECT_NAME} && php ./artisan sail:install --with=none"
+    bash -c "laravel new ${PROJECT_NAME} --no-interaction"
+    # bash -c "laravel new ${PROJECT_NAME} --no-interaction && cd ${PROJECT_NAME} && php ./artisan sail:install --with=none"
 #     bash -c "laravel new ${PROJECT_NAME} --no-interaction && cd ${PROJECT_NAME} && php ./artisan sail:install --with=mysql,redis,meilisearch,mailpit,selenium"
 
 cd ${PROJECT_NAME}
@@ -54,19 +60,21 @@ fi
 
 if $SUDO -n true 2>/dev/null; then
     $SUDO chown -R "$USER":"$USER" .
-    echo -e "${BOLD}Get started with:${NC} cd ${PROJECT_NAME} && ./vendor/bin/sail up"
+    echo -e "${BOLD}Get started with:${NC} cd ${PROJECT_NAME} && sleep 2"
+    # echo -e "${BOLD}Get started with:${NC} cd ${PROJECT_NAME} && ./vendor/bin/sail up"
 else
     echo -e "${BOLD}Please provide your password so we can make some final adjustments to your application's permissions.${NC}"
     echo ""
     $SUDO chown -R "$USER":"$USER" .
     echo ""
-    echo -e "${BOLD}Thank you! We hope you build something incredible. Dive in with:${NC} cd ${PROJECT_NAME} && ./vendor/bin/sail up"
+    echo -e "${BOLD}Thank you! We hope you build something incredible. Dive in with:${NC} sleep 2"
+    # echo -e "${BOLD}Thank you! We hope you build something incredible. Dive in with:${NC} cd ${PROJECT_NAME} && ./vendor/bin/sail up"
 fi
 
 # rm docker-compose.yml
 
 mv ../.vscode .
-mv -rf ../docker .
+mv ../docker .
 mv ../.env_docker .
 mv ../.gitignore .
 mv ../docker-compose.yml .
